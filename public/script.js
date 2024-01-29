@@ -13,6 +13,12 @@ const fillQuestionElements = (data) => {
     return;
   }
 
+  if (data.loser === true) {
+    gameBoard.style.display = "none";
+    h2.innerText = "Przegrana";
+    return;
+  }
+
   question.innerText = data.question;
 
   for (const i in data.answers) {
@@ -50,7 +56,7 @@ const sendAnswer = (answerIndex) => {
     });
 };
 
-const buttons = document.querySelectorAll("button");
+const buttons = document.querySelectorAll(".answer-button");
 
 for (const button of buttons) {
   button.addEventListener("click", (event) => {
@@ -58,3 +64,49 @@ for (const button of buttons) {
     sendAnswer(answerIndex);
   });
 }
+
+const tipDiv = document.querySelector("#tip");
+
+const handleFriendsAnswer = (data) => {
+  tipDiv.innerText = data.text;
+};
+
+const callToAFriend = () => {
+  fetch("/help/friend", {
+    method: "GET",
+  })
+    .then((data) => data.json())
+    .then((data) => {
+      handleFriendsAnswer(data);
+    });
+};
+
+document
+  .querySelector("#callToAFriend")
+  .addEventListener("click", callToAFriend);
+
+const handleHalfOnHalfAnswer = (data) => {
+  if (data.text) {
+    tipDiv.innerText = data.text;
+  }
+  console.log(data);
+
+  for (const button of buttons) {
+    console.log(button.innerText);
+    if (data.answersToRemove.includes(button.innerText)) {
+      button.disabled = true;
+    }
+  }
+};
+
+const halfOnHalf = () => {
+  fetch("/help/halfonhalf", {
+    method: "GET",
+  })
+    .then((data) => data.json())
+    .then((data) => {
+      handleHalfOnHalfAnswer(data);
+    });
+};
+
+document.querySelector("#halfOnHalf").addEventListener("click", halfOnHalf);

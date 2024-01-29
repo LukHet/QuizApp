@@ -72,7 +72,7 @@ const gameRoutes = (app) => {
 
     console.log(typeof question.correctAnswer, typeof Number(index));
 
-    const isGoodAnswer = question.correctAnswer === Number(index);
+    const isGoodAnswer = question.correctAnswer - 1 === Number(index);
 
     if (isGoodAnswer) {
       goodAnswers++;
@@ -83,6 +83,53 @@ const gameRoutes = (app) => {
     res.json({
       correct: isGoodAnswer,
       goodAnswers,
+    });
+  });
+
+  app.get("/help/friend", (req, res) => {
+    if (callToAFriendUsed) {
+      return res.json({
+        text: "To koło zostało już wykorzystane",
+      });
+    }
+
+    callToAFriendUsed = true;
+
+    const question = questions[goodAnswers];
+
+    const doesFriendKnowAnswer = Math.random() < 0.5;
+
+    res.json({
+      text: doesFriendKnowAnswer
+        ? `Odpowiedź to ${question.answers[question.correctAnswer]}`
+        : "Nie wiem",
+    });
+  });
+
+  app.get("/help/halfonhalf", (req, res) => {
+    if (halfOnHalfUsed) {
+      return res.json({
+        text: "To koło zostało już wykorzystane",
+      });
+    }
+
+    halfOnHalfUsed = true;
+
+    const question = questions[goodAnswers];
+
+    const answersCopy = question.answers.filter(
+      (el) => question.answers.indexOf(el) !== question.correctAnswer - 1
+    );
+
+    console.log(answersCopy);
+
+    answersCopy.splice(~~(Math.random() * answersCopy.length), 1);
+
+    console.log(answersCopy);
+
+    res.json({
+      answersToRemove: answersCopy,
+      text: "Wykorzystano koło 50/50",
     });
   });
 };
