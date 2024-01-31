@@ -70,8 +70,6 @@ const gameRoutes = (app) => {
 
     const question = questions[goodAnswers];
 
-    console.log(typeof question.correctAnswer, typeof Number(index));
-
     const isGoodAnswer = question.correctAnswer - 1 === Number(index);
 
     if (isGoodAnswer) {
@@ -99,9 +97,11 @@ const gameRoutes = (app) => {
 
     const doesFriendKnowAnswer = Math.random() < 0.5;
 
+    console.log(question);
+
     res.json({
       text: doesFriendKnowAnswer
-        ? `Odpowiedź to ${question.answers[question.correctAnswer]}`
+        ? `Odpowiedź to ${question.answers[question.correctAnswer - 1]}`
         : "Nie wiem",
     });
   });
@@ -117,20 +117,44 @@ const gameRoutes = (app) => {
 
     const question = questions[goodAnswers];
 
+    console.log(question);
+
     const answersCopy = question.answers.filter(
       (el) => question.answers.indexOf(el) !== question.correctAnswer - 1
     );
 
-    console.log(answersCopy);
-
     answersCopy.splice(~~(Math.random() * answersCopy.length), 1);
-
-    console.log(answersCopy);
 
     res.json({
       answersToRemove: answersCopy,
       text: "Wykorzystano koło 50/50",
     });
+  });
+
+  app.get("/help/crowd", (req, res) => {
+    if (questionToTheCrowd) {
+      return res.json({
+        text: "To koło zostało już wykorzystane",
+      });
+    }
+
+    questionToTheCrowd = true;
+
+    const chart = [10, 20, 30, 40];
+
+    for (let i = chart.length - 1; i > 0; i--) {
+      const change = Math.floor(Math.random() * 20 - 10);
+
+      chart[i] += change;
+      chart[i - 1] -= change;
+    }
+
+    const question = questions[goodAnswers];
+    const { correctAnswer } = question;
+
+    [chart[3], chart[correctAnswer]] = [chart[correctAnswer], chart[3]];
+
+    res.json({ chart });
   });
 };
 

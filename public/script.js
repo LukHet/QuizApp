@@ -110,3 +110,27 @@ const halfOnHalf = () => {
 };
 
 document.querySelector("#halfOnHalf").addEventListener("click", halfOnHalf);
+
+const handleCrowdAnswer = (data) => {
+  if (typeof data.text === "string") {
+    tipDiv.innerText = data.text;
+    return;
+  }
+  data.chart.forEach((percent, index) => {
+    buttons[index].innerText += ` - ${percent}%`;
+  });
+};
+
+const questionToTheCrowd = () => {
+  fetch("/help/crowd", {
+    method: "GET",
+  })
+    .then((data) => data.json())
+    .then((data) => {
+      handleCrowdAnswer(data);
+    });
+};
+
+document
+  .querySelector("#questionToTheCrowd")
+  .addEventListener("click", questionToTheCrowd);
